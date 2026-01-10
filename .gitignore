@@ -1,0 +1,207 @@
+# =================================
+# Python
+# =================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-wheel-metadata/
+share/python-wheels/
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# PyCharm
+.idea/
+.idea/*
+*.iml
+*.ipr
+*.iws
+
+# VSCode
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# PyCharm project files
+.project
+.pydevproject
+.pyproject
+
+# =================================
+# Данные и конфигурация
+# =================================
+# Файл с данными слов (создается автоматически)
+data/words.json
+data/*.json
+
+# Файл с токеном (НИКОГДА В GIT!)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*
+
+# Кэш бота
+*.session
+*.session-journal
+
+# =================================
+# Логи
+# =================================
+*.log
+logs/
+log/
+*.logs
+
+# =================================
+# Docker
+# =================================
+# Игнорируем все Docker-файлы, кроме Dockerfile и docker-compose.yml
+docker-compose.*.yml
+.docker/
+docker-compose.override.yml
+
+# =================================
+# Операционные системы
+# =================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+ehthumbs.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# =================================
+# IDE и редакторы
+# =================================
+# Sublime Text
+*.sublime-*
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.vim/
+.session
+.view.*
+
+# Visual Studio Code
+.history/
+
+# =================================
+# Telegram
+# =================================
+# Сессионные файлы Telegram API
+*.session
+*.session-journal
+
+# =================================
+# Python-специфичные
+# =================================
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytest
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Profiling data
+.prof
+
+# =================================
+# Системные файлы
+# =================================
+# Временные файлы
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# =================================
+# Ваш проект
+# =================================
+# Базы данных (если появятся)
+*.db
+*.sqlite
+*.sqlite3
+
+# Бекапы
+backup/
+backups/
+
+# Экспорты
+exports/
+*.csv
+*.xlsx
+
+# =================================
+# Документация
+# =================================
+# Сгенерированная документация
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# =================================
+# Разное
+# =================================
+# Файлы проекта
+*.project
+*.pydevproject
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Package manager specific
+Pipfile.lock
+poetry.lock
