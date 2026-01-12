@@ -1,0 +1,167 @@
+nglish-bot/
+├── Dockerfile
+├── requirements.txt
+├── .env
+├── docker-compose.yml (опционально)
+├── bot.py                # Главный файл запуска
+├── data/                 # Данные (создается автоматически)
+└── bot_logic/            # Папка с логикой
+    ├── __init__.py
+    ├── states.py         # Состояния FSM
+    ├── database.py       # Работа с данными
+    ├── handlers.py       # Обработчики команд
+    ├── keyboards.py      # Клавиатуры
+    ├── practice.py       # Логика практики
+    └── quiz.py          # Логика викторины
+
+states.py 
+
+from aiogram.fsm.state import State, StatesGroup
+
+class LearningStates(StatesGroup):
+    waiting_for_translation = State()
+    adding_word = State()
+
+import json
+from pathlib import Path
+
+database.py
+class UserData:
+    def __init__(self):
+        self.data_dir = Path('data')
+        self.data_dir.mkdir(exist_ok=True)
+        self.words_file = self.data_dir / 'words.json'
+        self.load_data()
+    
+    def load_data(self):
+        if self.words_file.exists():
+            with open(self.words_file, 'r', encoding='utf-8') as f:
+                self.words = json.load(f)
+        else:
+            self.words = {}
+    
+    def save_data(self):
+        with open(self.words_file, 'w', encoding='utf-8') as f:
+            json.dump(self.words, f, ensure_ascii=False, indent=2)
+    
+    def get_user_words(self, user_id):
+        user_id = str(user_id)
+        return self.words.get(user_id, {})
+    
+    def add_user_word(self, user_id, english, russian):
+        user_id = str(user_id)
+        if user_id not in self.words:
+            self.words[user_id] = {}
+        self.words[user_id][english] = russian
+        self.save_data()
+        return True
+    
+    def remove_user_word(self, user_id, english):
+        user_id = str(user_id)
+        if user_id in self.words and english in self.words[user_id]:
+            del self.words[user_id][english]
+            self.save_data()
+            return True
+        return False
+    
+    def get_all_words_count(self, user_id):
+        words = self.get_user_words(user_id)
+        return len(words)
+    
+    def get_random_words(self, user_id, count=3):
+        words = self.get_user_words(user_id)
+        word_list = list(words.items())
+        if len(word_list) >= count:
+            return random.sample(word_list, count)
+        return word_list
+
+
+
+
+
+practice.py
+
+import random
+
+async def start_practice_session(message, state, user_data):
+    words = user_data.get_user_words(message.from_user.id)
+    
+    if not words:
+        await message.answer("Сначала добавьте слова с помощью /add_word")
+        return None, None
+    
+    # Выбираем случайное русское слово
+    russian_words = list(words.values())
+    random_russian = random.choice(russian_words)
+    
+    # Находим английское слово
+    correct_english = None
+    for eng, rus in words.items():
+        if rus == random_russian:
+            correct_english = eng
+            break
+    
+    return random_russian, correct_english
+
+async def check_practice_answer(user_answer, correct_answer):
+    user_answer = user_answer.strip().lower()
+    correct_answer = correct_answer.lower()
+    
+    if user_answer == correct_answer:
+        return True, f"✅ Правильно!\n🇬🇧 {correct_answer}"
+    else:
+        return False, f"❌ Почти правильно!\nПравильно: 🇬🇧 {correct_answer}"
+
+
+
+
+
+quiz.py
+import random
+
+def prepare_quiz_question(words):
+    """Подготовить вопрос для викторины"""
+    if len(words) < 3:
+        return None, None, None
+    
+    # Выбираем случайное английское слово
+    english_word = random.choice(list(words.keys()))
+    correct_translation = words[english_word]
+    
+    # Собираем варианты ответов
+    all_translations = list(words.values())
+    wrong_translations = [t for t in all_translations if t != correct_translation]
+    
+    if len(wrong_translations) < 3:
+        while len(wrong_translations) < 3:
+            wrong_translations.append(random.choice(all_translations))
+    
+    # Выбираем 3 неправильных варианта
+    wrong_options = random.sample(wrong_translations, min(3, len(wrong_translations)))
+    
+    # Создаем все варианты
+    options = wrong_options + [correct_translation]
+    random.shuffle(options)
+    
+    # Определяем индекс правильного ответа
+    correct_index = options.index(correct_translation)
+    
+    return english_word, options, correct_index
+
+def process_quiz_answer(callback_data, user_words):
+    """Обработать ответ викторины"""
+    try:
+        parts = callback_data.split('_')
+        if len(parts) < 5:
+            return None, None, None, False
+        
+        user_choice = int(parts[2])
+        correct_index = int(parts[3])
+        english_word = '_'.join(parts[4:])
+        
+        correct_translation = user_words.get(english_word, "неизвестно")
+        
+        is_correct = user_choice == correct_index
+        return english_word, correct_translation, is_correct, True
+    except Exception:
+        return None, None, None, False
